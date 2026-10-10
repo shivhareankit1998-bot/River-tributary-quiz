@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Indian Rivers — Tributaries Interactive Quiz</title>
+<style>
+:root{font-family:system-ui,-apple-system,"Noto Sans Devanagari",sans-serif;color:#172033;background:#f4f7fb}
+*{box-sizing:border-box}body{margin:0;padding:16px}.wrap{max-width:760px;margin:0 auto}
+header{background:#123a63;color:#fff;padding:22px;border-radius:18px;margin-bottom:16px}
+h1{font-size:1.45rem;margin:0 0 8px}header p{margin:0;opacity:.9}
+.panel{background:#fff;border:1px solid #e1e7ef;border-radius:16px;padding:20px;box-shadow:0 3px 14px #16233b0a}
+.row{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}
+.progress{height:8px;background:#e7edf5;border-radius:20px;overflow:hidden;margin:14px 0 20px}.bar{height:100%;width:0;background:#23866b;transition:width .2s}
+.qnum{font-size:.92rem;color:#596579}.question{font-size:1.25rem;font-weight:750;margin:10px 0 18px;line-height:1.5}
+.options{display:grid;gap:10px}.opt{border:1.5px solid #d6deea;border-radius:12px;padding:13px 14px;background:#fff;text-align:left;font-size:1rem;color:#172033;cursor:pointer}
+.opt:hover{border-color:#5078a8;background:#f7faff}.opt:disabled{cursor:default}.opt.correct{border-color:#198754;background:#eaf8ef}.opt.wrong{border-color:#c83c48;background:#fff0f1}
+.feedback{margin-top:15px;padding:12px;border-radius:10px;line-height:1.5;display:none}.feedback.show{display:block}.good{background:#eaf8ef;color:#155d35}.bad{background:#fff0f1;color:#8a2029}
+.actions{display:flex;gap:10px;justify-content:space-between;margin-top:18px;flex-wrap:wrap}
+button.primary,button.secondary{border:0;border-radius:10px;padding:12px 17px;font-size:1rem;font-weight:650;cursor:pointer}
+.primary{background:#123a63;color:#fff}.primary:disabled{opacity:.4;cursor:default}.secondary{background:#e8edf4;color:#172033}
+.small{color:#647086;font-size:.9rem;margin-top:14px}.result{text-align:center}.score{font-size:2.5rem;font-weight:800;color:#123a63}
+.review{margin-top:20px;text-align:left}.review-item{border-top:1px solid #e5eaf1;padding:12px 0;line-height:1.5}
+@media(max-width:520px){body{padding:10px}.panel{padding:16px}.question{font-size:1.1rem}}
+</style>
+</head>
+<body><div class="wrap">
+<header><h1>नदी–सहायक नदी: इंटरैक्टिव क्विज़</h1><p>50 मिश्रित प्रश्न • हर प्रश्न में सही मुख्य नदी चुनें • अंत में स्कोर और उत्तरों की समीक्षा</p></header>
+<div class="panel" id="quizPanel">
+<div class="row"><span class="qnum" id="counter">प्रश्न 1 / 50</span><strong id="scoreLive">स्कोर: 0</strong></div>
+<div class="progress"><div class="bar" id="bar"></div></div>
+<div class="question" id="question"></div><div class="options" id="options"></div>
+<div class="feedback" id="feedback"></div>
+<div class="actions"><button class="secondary" id="restart" type="button">फिर से शुरू करें</button><button class="primary" id="next" type="button" disabled>अगला प्रश्न →</button></div>
+<p class="small">स्रोत: आपकी अपलोड की गई Geography.pdf. नोट: PDF में दामोदर के साथ हुगली संबंधी विशेष टिप्पणी दी गई है।</p>
+</div>
+<div class="panel result" id="resultPanel" style="display:none"></div>
+</div>
+<script>
+const questions = [{"tributary": "Bhavani", "answer": "Kaveri", "bank": "Right bank", "options": ["Yamuna", "Brahmaputra", "Kaveri", "Ganga"]}, {"tributary": "Hemavati", "answer": "Kaveri", "bank": "Left bank", "options": ["Krishna", "Ganga", "Yamuna", "Kaveri"]}, {"tributary": "Gomti", "answer": "Ganga", "bank": "Left bank", "options": ["Yamuna", "Ganga", "Godavari", "Brahmaputra"]}, {"tributary": "Burhi Dihing", "answer": "Brahmaputra", "bank": "Left bank", "options": ["Ganga", "Krishna", "Brahmaputra", "Godavari"]}, {"tributary": "Tons", "answer": "Yamuna", "bank": "Left bank", "options": ["Ganga", "Brahmaputra", "Krishna", "Yamuna"]}, {"tributary": "Koyna", "answer": "Krishna", "bank": "Right bank", "options": ["Kaveri", "Ganga", "Godavari", "Krishna"]}, {"tributary": "Chambal", "answer": "Yamuna", "bank": "Right bank", "options": ["Krishna", "Godavari", "Yamuna", "Brahmaputra"]}, {"tributary": "Damodar", "answer": "Ganga (as listed in the PDF)", "bank": "PDF note: listed with a note that it is a distributary/tributary of Hooghly", "options": ["Godavari", "Ganga", "Brahmaputra", "Ganga (as listed in the PDF)"]}, {"tributary": "Dudhganga", "answer": "Krishna", "bank": "Right bank", "options": ["Yamuna", "Ganga", "Brahmaputra", "Krishna"]}, {"tributary": "Betwa", "answer": "Yamuna", "bank": "Right bank", "options": ["Krishna", "Kaveri", "Brahmaputra", "Yamuna"]}, {"tributary": "Punpun", "answer": "Ganga", "bank": "Right bank", "options": ["Ganga", "Yamuna", "Godavari", "Krishna"]}, {"tributary": "Purna", "answer": "Godavari", "bank": "Left bank", "options": ["Godavari", "Krishna", "Kaveri", "Brahmaputra"]}, {"tributary": "Dibang", "answer": "Brahmaputra", "bank": "Left bank", "options": ["Godavari", "Brahmaputra", "Krishna", "Kaveri"]}, {"tributary": "Pravara", "answer": "Godavari", "bank": "Right bank", "options": ["Brahmaputra", "Godavari", "Ganga", "Krishna"]}, {"tributary": "Malaprabha", "answer": "Krishna", "bank": "Right bank", "options": ["Krishna", "Kaveri", "Ganga", "Brahmaputra"]}, {"tributary": "Wardha", "answer": "Godavari", "bank": "Left bank", "options": ["Godavari", "Yamuna", "Krishna", "Brahmaputra"]}, {"tributary": "Manair", "answer": "Godavari", "bank": "Right bank", "options": ["Brahmaputra", "Godavari", "Kaveri", "Yamuna"]}, {"tributary": "Karmanyasa / Karmanasha", "answer": "Ganga", "bank": "Right bank", "options": ["Ganga", "Brahmaputra", "Godavari", "Kaveri"]}, {"tributary": "Kameng", "answer": "Brahmaputra", "bank": "Right bank", "options": ["Godavari", "Yamuna", "Brahmaputra", "Kaveri"]}, {"tributary": "Shimsha", "answer": "Kaveri", "bank": "Left bank", "options": ["Brahmaputra", "Yamuna", "Ganga", "Kaveri"]}, {"tributary": "Lohit", "answer": "Brahmaputra", "bank": "Left bank", "options": ["Yamuna", "Godavari", "Krishna", "Brahmaputra"]}, {"tributary": "Dudhna", "answer": "Godavari", "bank": "Left bank", "options": ["Ganga", "Brahmaputra", "Godavari", "Yamuna"]}, {"tributary": "Rapti", "answer": "Ganga", "bank": "Left bank", "options": ["Ganga", "Kaveri", "Godavari", "Brahmaputra"]}, {"tributary": "Darna", "answer": "Godavari", "bank": "Left bank", "options": ["Brahmaputra", "Godavari", "Ganga", "Krishna"]}, {"tributary": "Indravati", "answer": "Godavari", "bank": "Left bank", "options": ["Kaveri", "Godavari", "Brahmaputra", "Krishna"]}, {"tributary": "Ghaghara", "answer": "Ganga", "bank": "Left bank", "options": ["Kaveri", "Godavari", "Yamuna", "Ganga"]}, {"tributary": "Tungabhadra", "answer": "Krishna", "bank": "Right bank", "options": ["Ganga", "Godavari", "Krishna", "Kaveri"]}, {"tributary": "Tons / Tamasa", "answer": "Ganga", "bank": "Right bank", "options": ["Kaveri", "Krishna", "Brahmaputra", "Ganga"]}, {"tributary": "Muneru", "answer": "Krishna", "bank": "Left bank", "options": ["Godavari", "Krishna", "Ganga", "Brahmaputra"]}, {"tributary": "Noyyal", "answer": "Kaveri", "bank": "Right bank", "options": ["Ganga", "Kaveri", "Brahmaputra", "Godavari"]}, {"tributary": "Subansiri", "answer": "Brahmaputra", "bank": "Right bank", "options": ["Brahmaputra", "Godavari", "Kaveri", "Ganga"]}, {"tributary": "Ramganga", "answer": "Ganga", "bank": "Left bank", "options": ["Ganga", "Yamuna", "Godavari", "Brahmaputra"]}, {"tributary": "Hindon", "answer": "Yamuna", "bank": "Left bank", "options": ["Kaveri", "Godavari", "Yamuna", "Ganga"]}, {"tributary": "Penganga / Wainganga", "answer": "Godavari", "bank": "Left bank", "options": ["Ganga", "Kaveri", "Godavari", "Yamuna"]}, {"tributary": "Bhima", "answer": "Krishna", "bank": "Left bank", "options": ["Ganga", "Kaveri", "Krishna", "Yamuna"]}, {"tributary": "Mahananda", "answer": "Ganga", "bank": "Left bank", "options": ["Kaveri", "Krishna", "Ganga", "Brahmaputra"]}, {"tributary": "Ghataprabha", "answer": "Krishna", "bank": "Right bank", "options": ["Kaveri", "Brahmaputra", "Krishna", "Godavari"]}, {"tributary": "Dhansiri", "answer": "Brahmaputra", "bank": "Left bank", "options": ["Krishna", "Brahmaputra", "Godavari", "Kaveri"]}, {"tributary": "Dindi", "answer": "Krishna", "bank": "Left bank", "options": ["Yamuna", "Brahmaputra", "Krishna", "Ganga"]}, {"tributary": "Giri", "answer": "Yamuna", "bank": "Left bank", "options": ["Godavari", "Yamuna", "Kaveri", "Krishna"]}, {"tributary": "Manjira", "answer": "Godavari", "bank": "Right bank", "options": ["Yamuna", "Krishna", "Godavari", "Ganga"]}, {"tributary": "Kadva", "answer": "Godavari", "bank": "Left bank", "options": ["Kaveri", "Yamuna", "Krishna", "Godavari"]}, {"tributary": "Yamuna", "answer": "Ganga", "bank": "Right bank", "options": ["Brahmaputra", "Kaveri", "Ganga", "Krishna"]}, {"tributary": "Kopili", "answer": "Brahmaputra", "bank": "Left bank", "options": ["Brahmaputra", "Krishna", "Godavari", "Yamuna"]}, {"tributary": "Amaravati", "answer": "Kaveri", "bank": "Right bank", "options": ["Kaveri", "Krishna", "Godavari", "Ganga"]}, {"tributary": "Sharda / Saryu", "answer": "Ganga", "bank": "Left bank", "options": ["Godavari", "Yamuna", "Ganga", "Krishna"]}, {"tributary": "Gandak", "answer": "Ganga", "bank": "Left bank", "options": ["Krishna", "Ganga", "Kaveri", "Brahmaputra"]}, {"tributary": "Pranhita", "answer": "Godavari", "bank": "Left bank", "options": ["Yamuna", "Brahmaputra", "Ganga", "Godavari"]}, {"tributary": "Kabini", "answer": "Kaveri", "bank": "Right bank", "options": ["Ganga", "Godavari", "Kaveri", "Krishna"]}, {"tributary": "Arkavati", "answer": "Kaveri", "bank": "Left bank", "options": ["Ganga", "Godavari", "Brahmaputra", "Kaveri"]}];
+let index=0, score=0, responses=[];
+const $=id=>document.getElementById(id);
+function render(){
+ const q=questions[index];
+ $('counter').textContent=`प्रश्न ${index+1} / ${questions.length}`;
+ $('scoreLive').textContent=`स्कोर: ${score}`;
+ $('bar').style.width=`${index/questions.length*100}%`;
+ $('question').textContent=`“${q.tributary}” किस मुख्य नदी की सहायक नदी है?`;
+ $('options').innerHTML=''; $('feedback').className='feedback'; $('feedback').textContent='';
+ $('next').disabled=true; $('next').textContent=index===questions.length-1?'परिणाम देखें':'अगला प्रश्न →';
+ q.options.forEach(opt=>{
+   const b=document.createElement('button'); b.className='opt'; b.textContent=opt; b.type='button';
+   b.onclick=()=>choose(opt,b); $('options').appendChild(b);
+ });
+}
+function choose(opt, btn){
+ const q=questions[index]; const buttons=[...document.querySelectorAll('.opt')];
+ buttons.forEach(b=>{b.disabled=true;if(b.textContent===q.answer)b.classList.add('correct')});
+ let isCorrect=opt===q.answer;
+ if(isCorrect){score++;btn.classList.add('correct')} else btn.classList.add('wrong');
+ responses[index]={chosen:opt,correct:isCorrect};
+ $('scoreLive').textContent=`स्कोर: ${score}`;
+ const note=q.tributary==='Damodar'?' PDF में इसे गंगा सूची में हुगली की वितरिका/सहायक के उल्लेख के साथ रखा गया है।':` यह आपकी PDF में ${q.answer} की ${q.bank} सहायक नदी के रूप में सूचीबद्ध है।`;
+ $('feedback').textContent=(isCorrect?'सही जवाब! ':'गलत जवाब। सही उत्तर: '+q.answer+'. ')+note;
+ $('feedback').className='feedback show '+(isCorrect?'good':'bad');
+ $('next').disabled=false;
+}
+function finish(){
+ $('quizPanel').style.display='none'; $('resultPanel').style.display='block';
+ const pct=Math.round(score/questions.length*100);
+ let out=`<h2>क्विज़ पूरा हुआ!</h2><div class="score">${score} / ${questions.length}</div><p>${pct}% सही उत्तर</p><button class="primary" id="again">दोबारा क्विज़ दें</button><div class="review"><h3>उत्तर समीक्षा</h3>`;
+ questions.forEach((q,i)=>{const r=responses[i]||{chosen:'उत्तर नहीं दिया',correct:false};out+=`<div class="review-item"><strong>${i+1}. ${q.tributary}</strong><br>आपका उत्तर: ${r.chosen} ${r.correct?'✓':'✗'}<br>सही उत्तर: <strong>${q.answer}</strong><br><span class="small">${q.bank}${q.tributary==='Damodar'?' • PDF में हुगली संबंधी टिप्पणी भी है.':''}</span></div>`});
+ out+='</div>'; $('resultPanel').innerHTML=out;$('again').onclick=restart;
+}
+function restart(){index=0;score=0;responses=[];$('quizPanel').style.display='block';$('resultPanel').style.display='none';render();window.scrollTo({top:0,behavior:'smooth'})}
+$('next').onclick=()=>{if(index<questions.length-1){index++;render()}else finish()};
+$('restart').onclick=restart;
+render();
+</script></body></html>
